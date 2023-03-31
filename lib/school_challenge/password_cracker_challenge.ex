@@ -10,8 +10,7 @@ defmodule PasswordCrackerChallenge do
   def guess_password(_hash, 11, _), do: raise "Password not found"
   def guess_password(hash, number, passwords) do
     result = passwords
-    |> Enum.map(&(Task.async(fn -> check_password(&1, hash) end)))
-    |> Enum.map(&Task.await/1)
+    |> Enum.map(&check_password(&1, hash))
     |> Enum.filter(&match?({true, _}, &1))
 
     if result == [] do
