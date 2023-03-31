@@ -5,12 +5,6 @@ defmodule SchoolChallenge do
 
   @doc """
   Hello world.
-
-  ## Examples
-
-      iex> SchoolChallenge.hello()
-      :world
-
   """
   def hello do
     :world
