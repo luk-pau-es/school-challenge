@@ -6,41 +6,35 @@ defmodule PasswordCrackerChallenge do
 
   TIP: należy zwrócić uwagę, czy apostrofy są '' (lista znaków) czy "" (String, binary)
   """
-  def guess_password(hash), do: guess_password(hash, 1, get_basic_charlist())
-  def guess_password(_hash, 11, _), do: raise "Password not found"
-  def guess_password(hash, number, passwords) do
-    result = passwords
-    |> Enum.map(&(Task.async(fn -> check_password(&1, hash) end)))
-    |> Enum.map(&Task.await/1)
+  @chunk_size 200_000
+
+  def guess_password(hash), do: guess_password(hash, 0)
+  def guess_password(hash, n) do
+    result = n..(n + 1) * @chunk_size
+    |> Enum.map(&number_to_password(&1, ''))
+    |> Enum.map(&check_password(&1, hash))
     |> Enum.filter(&match?({true, _}, &1))
 
     if result == [] do
-      new_passwords = passwords
-      |> Enum.chunk_every(1)
-      |> Enum.map(&(Task.async(fn -> cross_product(&1, get_basic_charlist()) end)))
-      |> Enum.map(&Task.await/1)
-      |> List.flatten()
-      |> Enum.chunk_every(number + 1)
-
-      guess_password(hash, number + 1, new_passwords)
+      guess_password(hash, n + 1)
     else
       Enum.at(result, 0)
       |> elem(1)
     end
   end
 
-  defp get_basic_charlist() do
-    ?a..?z
-    |> Enum.to_list()
-    |> Enum.chunk_every(1)
+  defp number_to_password(0, ''), do: 'a'
+  defp number_to_password(0, password), do: password
+  defp number_to_password(number, password) do
+    char = number
+    |> rem(26)
+    |> (fn(x) -> [x + 97] end).()
+
+    number_to_password(div(number, 26), char ++ password)
   end
 
   defp check_password(password, actual_password_hash) do
     guessed_password_hash = :crypto.hash(:sha512, password)
     {actual_password_hash == guessed_password_hash, password}
-  end
-
-  defp cross_product(a, b) do
-    for x <- a, y <- b, do: x ++ y
   end
 end
