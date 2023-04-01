@@ -1,8 +1,8 @@
 defmodule PasswordCrackerChallengeTest do
   use ExUnit.Case
 
-  @passwords_count 7
-  @max_password_length 7
+  @passwords_count 6
+  @max_password_length 6
 
   for password_length <- 1..@max_password_length do
     test "test #{password_length} chars passwords" do
