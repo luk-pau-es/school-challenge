@@ -10,6 +10,8 @@ defmodule PasswordCrackerChallenge do
 
   def guess_password(hash), do: guess_password(hash, 0)
   def guess_password(hash, n) do
+    :erlang.garbage_collect()
+
     result = n..(n + 1) * @chunk_size
     |> Enum.map(&number_to_password(&1, ''))
     |> Enum.map(&check_password(&1, hash))
