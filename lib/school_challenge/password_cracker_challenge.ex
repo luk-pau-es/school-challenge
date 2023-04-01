@@ -29,7 +29,7 @@ defmodule PasswordCrackerChallenge do
     stream =
       min..max
       |> Enum.to_list()
-      |> Enum.chunk_every(500_000)
+      |> Enum.chunk_every(250_000)
       |> Task.async_stream(fn subchunk ->
         subchunk
         |> Enum.map(fn x -> generate_candidate(x, ~c"") end)
